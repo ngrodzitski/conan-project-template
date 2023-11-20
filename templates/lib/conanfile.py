@@ -1,7 +1,7 @@
 from conans import ConanFile, CMake, tools
 import os, sys, re
 
-#%if @corporate_tag
+#%if hasattr(self,"corporate_tag")
 class @{corporate_tag.lower().capitalize()}@{camel_name}Conan(ConanFile):
 #%else
 class @{camel_name}Conan(ConanFile):
@@ -27,7 +27,7 @@ class @{camel_name}Conan(ConanFile):
             else:
                 raise ValueError(f"cannot detect version from {version_file_path}")
 
-#%if @corporate_tag
+#%if hasattr(self,"corporate_tag")
     name = "@{corporate_tag.lower()}@{name}"
 #%else
     name = "@{name}"
@@ -64,7 +64,7 @@ class @{camel_name}Conan(ConanFile):
             self.ACT_AS_PACKAGE_ONLY_CONANFILE
             # The environment variable below can be used
             # to run conan create localy (used for debugging issues).
-#%if @corporate_tag
+#%if hasattr(self,"corporate_tag")
             or os.environ.get("@{corporate_tag.upper()}_CONAN_PACKAGING") == "ON"
 #%else
             or os.environ.get("@{name.upper()}_CONAN_PACKAGING") == "ON"

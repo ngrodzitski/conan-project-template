@@ -270,7 +270,7 @@ if __name__ == "__main__":
         "--corporate-tag",
         metavar="corporate-tag",
         help="Add a corporate tag, used as a top level namespace",
-        action=CheckNiceCIdentifierAction,
+        action=CheckNiceCIdentifierAction
     )
 
     generate_stub_project(parser.parse_args())

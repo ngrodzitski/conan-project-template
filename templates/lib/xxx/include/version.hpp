@@ -1,7 +1,7 @@
 // clang-format off
 #pragma once
 
-//#if $corporate_tag
+//#if hasattr(self,"corporate_tag")
 //#set $macro_prefix = $corporate_tag.upper() + "_" + $name.upper()
 //#else
 //#set $macro_prefix = $name.upper()

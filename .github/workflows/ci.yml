@@ -1,0 +1,66 @@
+# See runners details:
+# https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
+
+name: CI
+
+on:
+  push:
+    branches: ["main", "dev-0.1"]
+  pull_request:
+
+jobs:
+  Library-stub:
+    name: "Ubuntu-22.04 (header-only: ${{ matrix.header_only }}, corporate_tag: ${{ matrix.corporate_tag }})"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        header_only:
+          - True
+          - False
+        corporate_tag:
+          - ""
+          - "kola"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare env
+        shell: bash
+        run: |
+          pip install --user conan==1.* PrettyTable
+      - name: Construct generator args (base)
+        shell: bash
+        run: |
+            echo "--dir-path ./_project --name super_xyz --camel-name SuperXyz" >> genargs
+
+      - name: Construct generator args (header)
+        if: ${{ matrix.header_only }}
+        shell: bash
+        run: |
+            echo "--header-only" >> genargs
+
+      - name: Construct generator args (corporate tag)
+        if: ${{ matrix.corporate_tag != "" }}
+        shell: bash
+        run: |
+            echo "--corporate-tag grdz" >> genargs
+
+      - name: Generate
+        shell: bash
+        run: |
+          xargs -a genargs python project_generator.py
+          ln -s `pwd`/cmake-scripts/ _project/cmake-scripts
+
+      - name: Build and test
+        shell: bash
+        working-directory: ./_project
+        run: |
+          conan install \
+            -s compiler.cppstd=17 \
+            -s build_type=Debug \
+            -if _build \
+            --build missing \
+            .
+          cmake -B_build . -DCMAKE_BUILD_TYPE=Debug
+          cmake --build . -j $(nproc)
+          ctest -T test --test-dir _build

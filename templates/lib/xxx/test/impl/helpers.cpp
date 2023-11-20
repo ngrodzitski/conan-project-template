@@ -9,7 +9,7 @@ namespace /* anonymous */
 using namespace ${cpp_namespace_prefix}${name};
 
 // NOLINTNEXTLINE
-//#if $corporate_tag
+//#if hasattr(self,"corporate_tag")
 TEST( ${corporate_tag.lower().capitalize()}${camel_name}ImplHelpers, MakeCanonicalName )
 //#else
 TEST( ${camel_name}ImplHelpers, MakeCanonicalName )
