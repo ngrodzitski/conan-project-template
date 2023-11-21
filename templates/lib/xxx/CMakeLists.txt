@@ -40,7 +40,6 @@ message(STATUS "${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} SOVERSION: " ${PRJ_S
 # ====================================================================
 
 #%if @project_cmake_var_suffix == @name
-project(${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}_root CXX)
 set(TARGET_PROJECT ${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})
 #%else
 set(TARGET_PROJECT @{project_cmake_var_suffix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})

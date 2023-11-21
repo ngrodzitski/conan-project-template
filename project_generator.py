@@ -210,6 +210,22 @@ def generate_stub_project(args):
         fnames = [".gitignore", ".clang-format"]
     )
 
+    gen.generate_file(
+        "test_package/CMakeLists.txt",
+        "test_package/CMakeLists.txt",
+        generate_md_py_cmake_piece
+    )
+    gen.generate_file(
+        "test_package/conanfile.py",
+        "test_package/conanfile.py",
+        generate_md_py_cmake_piece
+    )
+    gen.generate_file(
+        "test_package/example.cpp",
+        "test_package/example.cpp",
+        generate_cpp_piece
+    )
+
 class CheckNiceCIdentifierAction(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
         # Require to start with letter, even though "_"

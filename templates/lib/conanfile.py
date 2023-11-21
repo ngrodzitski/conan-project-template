@@ -2,10 +2,11 @@ from conans import ConanFile, CMake, tools
 import os, sys, re
 
 #%if "corporate_tag" in self.keys()
-class @{corporate_tag.lower().capitalize()}@{camel_name}Conan(ConanFile):
+#%set @ctag=@corporate_tag.lower()
 #%else
-class @{camel_name}Conan(ConanFile):
+#%set @ctag=""
 #%end if
+class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
 
     def set_version(self):
         version_file_path = os.path.join(
@@ -36,11 +37,7 @@ class @{camel_name}Conan(ConanFile):
     }
 
 #%end if
-#%if "corporate_tag" in self.keys()
-    name = "@{corporate_tag.lower()}@{name}"
-#%else
-    name = "@{name}"
-#%end if
+    name = "@{ctag}@{name}"
 
     license = "TODO"
     author = "TODO"
@@ -151,18 +148,23 @@ class @{camel_name}Conan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.components["@{name}"].names["cmake_find_package"] = self.name
-        self.cpp_info.components["@{name}"].names["cmake_find_package_multi"] = self.name
-#%if not @header_only
-        self.cpp_info.components["@{name}"].libs = [self.name]
+#%if "corporate_tag" in self.keys()
+        component_name = "@{name}"
+#%else
+        component_name = "_@{name}"
 #%end if
-        self.cpp_info.components["@{name}"].requires = [
+        self.cpp_info.names["cmake_find_package"] = self.name
+        self.cpp_info.names["cmake_find_package_multi"] = self.name
+#%if not @header_only
+        self.cpp_info.components[component_name].libs = [self.name]
+#%end if
+        self.cpp_info.components[component_name].requires = [
             # TODO: add your libraries here.
             "fmt::fmt",
         ]
         self.cpp_info.components[
-            "@{name}"
+            component_name
         ].set_property("cmake_target_name", f"{self.name}::@{name}")
-        self.cpp_info.components["@{name}"].defines.append(
+        self.cpp_info.components[component_name].defines.append(
             "@{library_macros}"
         )
