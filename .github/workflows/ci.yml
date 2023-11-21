@@ -100,3 +100,77 @@ jobs:
             -s compiler.version=11 \
             -s compiler.cppstd=17 \
             --build missing
+
+  Application-stub:
+    name: "Ubuntu-22.04 (header-only: ${{ matrix.header_only }}, corporate_tag: ${{ matrix.corporate_tag }})"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        corporate_tag:
+          - ""
+          - "kola"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Prepare env
+        shell: bash
+        run: |
+          pip install --user conan==1.* PrettyTable Cheetah3
+          conan config init
+          conan profile update settings.compiler.libcxx=libstdc++11 default
+
+      - name: Construct generator args (base)
+        shell: bash
+        run: |
+            echo "--dir-path ./_project --name super_xyz --camel-name SuperXyz --project-type app" >> genargs
+
+      - name: Construct generator args (corporate tag)
+        if: ${{ matrix.corporate_tag != '' }}
+        shell: bash
+        run: |
+            echo "--corporate-tag grdz" >> genargs
+
+      - name: Generate
+        shell: bash
+        run: |
+          cat genargs
+          xargs -a genargs python project_generator.py
+          cp -r `pwd`/cmake-scripts/ _project/cmake-scripts
+
+      - name: Run conan install
+        shell: bash
+        working-directory: ./_project
+        run: |
+          conan install \
+            -s compiler.cppstd=17 \
+            -s build_type=Debug \
+            -if _build \
+            --build missing \
+            .
+
+      - name: Cmake configure
+        shell: bash
+        working-directory: ./_project
+        run: |
+          cmake -B_build . -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Cmake build
+        shell: bash
+        working-directory: ./_project
+        run: |
+          cmake --build _build -j $(nproc)
+
+      - name: Run ctest
+        shell: bash
+        working-directory: ./_project
+        run: |
+          ctest -T test --test-dir _build
+
+      - name: Run install
+        shell: bash
+        working-directory: ./_project
+        run: |
+          cmake --install _build/ --prefix _install

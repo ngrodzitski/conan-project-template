@@ -4,10 +4,6 @@ if (NOT @{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME)
     set(@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME @{name})
 endif ()
 
-# ====================================================================
-# Version
-# ====================================================================
-
 # Define where cmake-scripts dir is located.
 # in case of using this lib as a submodule it might be located somewhere else
 # and not next to a root `CMakeLists.txt` file of the project.
@@ -16,6 +12,9 @@ if (NOT @{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR)
     set(@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/cmake-scripts")
 endif ()
 
+# ====================================================================
+# Version
+# ====================================================================
 include(${@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR}/extract_version.cmake)
 extract_version(
     "include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/version.hpp"

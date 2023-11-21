@@ -4,7 +4,7 @@
 #include <${src_path_prefix}${name}/pub.hpp>
 
 int main() {
-//#if hasattr(self,"corporate_tag")
+//#if "corporate_tag" in self.keys()
 //#set $macro_prefix = $corporate_tag.upper() + "_" + $name.upper()
 //#set $ctag = $corporate_tag.lower()
 //#else

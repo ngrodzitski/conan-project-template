@@ -9,7 +9,7 @@ namespace /* anonymous */
 using namespace ${cpp_namespace_prefix}${name};
 
 // NOLINTNEXTLINE
-//#if hasattr(self,"corporate_tag")
+//#if "corporate_tag" in self.keys()
 TEST( ${corporate_tag.lower().capitalize()}${camel_name}, MakeCanonicalSample )
 //#else
 TEST( ${camel_name}, MakeCanonicalSample )
@@ -19,7 +19,7 @@ TEST( ${camel_name}, MakeCanonicalSample )
     EXPECT_EQ( make_canonical_sample( "x\xFFyz" ).name(), "x\\xFFyz" );
 }
 
-//#if hasattr(self,"corporate_tag")
+//#if "corporate_tag" in self.keys()
 TEST( ${corporate_tag.lower().capitalize()}${camel_name}, Format )
 //#else
 TEST( ${camel_name}, Format )

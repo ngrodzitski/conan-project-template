@@ -146,85 +146,115 @@ def generate_stub_project(args):
         gen_params["src_path_prefix"] = ""
         gen_params["cpp_namespace_prefix"] = ""
 
-    gen = GeneratorRunner( dest_dir, template_src_dir, gen_params)
-
-
-    gen.generate_file( "README.md", "README.md", generate_md_py_cmake_piece)
-    gen.generate_file( "CMakeLists.txt", "CMakeLists.txt", generate_md_py_cmake_piece)
-    gen.generate_file( "conanfile.py", "conanfile.py", generate_md_py_cmake_piece)
-
-    gen.generate_file( "xxx/CMakeLists.txt", f"{gen_params['name']}/CMakeLists.txt", generate_md_py_cmake_piece)
-    gen.generate_file(
-        "xxx/include/pub.hpp",
-        f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/pub.hpp",
-        generate_cpp_piece
-    )
-    gen.generate_file(
-        "xxx/include/version.hpp",
-        f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/version.hpp",
-        generate_cpp_piece
-    )
-
-    if not args.header_only:
-        gen.generate_file(
-            "xxx/src/pub.cpp",
-            f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/pub.cpp",
-            generate_cpp_piece
-        )
-        gen.generate_file(
-            "xxx/include/impl/helpers.hpp",
-            f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/impl/helpers.hpp",
-            generate_cpp_piece
-        )
-        gen.generate_file(
-            "xxx/src/impl/helpers.cpp",
-            f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/impl/helpers.cpp",
-            generate_cpp_piece
-        )
-
-    gen.generate_file(
-        "xxx/test/CMakeLists.txt",
-        f"{gen_params['name']}/test/CMakeLists.txt",
-        generate_md_py_cmake_piece
-    )
-    gen.generate_file(
-        "xxx/test/pub.cpp",
-        f"{gen_params['name']}/test/pub.cpp",
-        generate_cpp_piece
-    )
-    if not args.header_only:
-        gen.generate_file(
-            "xxx/test/impl/helpers.cpp",
-            f"{gen_params['name']}/test/impl/helpers.cpp",
-            generate_cpp_piece
-        )
-    gen.generate_file(
-        "xxx/cmake/lib-config.cmake.in",
-        f"{gen_params['name']}/cmake/lib-config.cmake.in",
-        generate_md_py_cmake_piece
-    )
-
     copy_static_files(
         dest_dir = dest_dir,
         src_dir = static_src_dir,
         fnames = [".gitignore", ".clang-format"]
     )
 
+    gen = GeneratorRunner( dest_dir, template_src_dir, gen_params)
+
+    gen.generate_file( "README.md", "README.md", generate_md_py_cmake_piece)
+    gen.generate_file( "CMakeLists.txt", "CMakeLists.txt", generate_md_py_cmake_piece)
+    gen.generate_file( "conanfile.py", "conanfile.py", generate_md_py_cmake_piece)
+    gen.generate_file( "xxx/CMakeLists.txt", f"{gen_params['name']}/CMakeLists.txt", generate_md_py_cmake_piece)
+
     gen.generate_file(
-        "test_package/CMakeLists.txt",
-        "test_package/CMakeLists.txt",
-        generate_md_py_cmake_piece
-    )
-    gen.generate_file(
-        "test_package/conanfile.py",
-        "test_package/conanfile.py",
-        generate_md_py_cmake_piece
-    )
-    gen.generate_file(
-        "test_package/example.cpp",
-        "test_package/example.cpp",
+        "xxx/include/version.hpp",
+        f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/version.hpp",
         generate_cpp_piece
     )
+
+    if args.project_type == "lib":
+        gen.generate_file(
+            "xxx/include/pub.hpp",
+            f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/pub.hpp",
+            generate_cpp_piece
+        )
+
+        if not args.header_only:
+            gen.generate_file(
+                "xxx/src/pub.cpp",
+                f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/pub.cpp",
+                generate_cpp_piece
+            )
+            gen.generate_file(
+                "xxx/include/impl/helpers.hpp",
+                f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/impl/helpers.hpp",
+                generate_cpp_piece
+            )
+            gen.generate_file(
+                "xxx/src/impl/helpers.cpp",
+                f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/impl/helpers.cpp",
+                generate_cpp_piece
+            )
+
+        gen.generate_file(
+            "xxx/test/CMakeLists.txt",
+            f"{gen_params['name']}/test/CMakeLists.txt",
+            generate_md_py_cmake_piece
+        )
+        gen.generate_file(
+            "xxx/test/pub.cpp",
+            f"{gen_params['name']}/test/pub.cpp",
+            generate_cpp_piece
+        )
+        if not args.header_only:
+            gen.generate_file(
+                "xxx/test/impl/helpers.cpp",
+                f"{gen_params['name']}/test/impl/helpers.cpp",
+                generate_cpp_piece
+            )
+        gen.generate_file(
+            "xxx/cmake/lib-config.cmake.in",
+            f"{gen_params['name']}/cmake/lib-config.cmake.in",
+            generate_md_py_cmake_piece
+        )
+
+        gen.generate_file(
+            "test_package/CMakeLists.txt",
+            "test_package/CMakeLists.txt",
+            generate_md_py_cmake_piece
+        )
+        gen.generate_file(
+            "test_package/conanfile.py",
+            "test_package/conanfile.py",
+            generate_md_py_cmake_piece
+        )
+        gen.generate_file(
+            "test_package/example.cpp",
+            "test_package/example.cpp",
+            generate_cpp_piece
+        )
+
+    if args.project_type == "app":
+        gen.generate_file(
+            "xxx/include/main.hpp",
+            f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/main.hpp",
+            generate_cpp_piece
+        )
+        gen.generate_file(
+            "xxx/src/main_lib.cpp",
+            f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/main.cpp",
+            generate_cpp_piece
+        )
+        gen.generate_file(
+            "xxx/src/main_exe.cpp",
+            f"{gen_params['name']}/src/main.cpp",
+            generate_cpp_piece
+        )
+
+        gen.generate_file(
+            "xxx/test/CMakeLists.txt",
+            f"{gen_params['name']}/test/CMakeLists.txt",
+            generate_md_py_cmake_piece
+        )
+        gen.generate_file(
+            "xxx/test/sample_test.cpp",
+            f"{gen_params['name']}/test/sample_test.cpp",
+            generate_cpp_piece
+        )
+
 
 class CheckNiceCIdentifierAction(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
