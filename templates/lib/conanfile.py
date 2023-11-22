@@ -1,5 +1,13 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import get, copy, rmdir, collect_libs
+from conan.tools.scm import Version
 import os, sys, re
+
+required_conan_version = ">=1.53.0"
+
 
 #%if "corporate_tag" in self.keys()
 #%set @ctag=@corporate_tag.lower()
@@ -47,7 +55,6 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
 
     topics = ("@{name}", "todo")
 
-    generators = "cmake_find_package", "cmake"
     settings = "os", "compiler", "build_type", "arch"
 
     exports_sources = [
@@ -58,6 +65,16 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
     no_copy_source = False
     build_policy = "missing"
     _cmake = None
+
+    def _compiler_support_lut(self):
+        return {
+            "gcc": "9",
+            "clang": "10",
+            "apple-clang": "11",
+            "Visual Studio": "17",
+            "msvc": "191"
+        }
+
 
     # This hint tells that this conanfile acts as
     # a conanfile for a package, which implies
@@ -83,88 +100,91 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
 
     def build_requirements(self):
         if not self._is_package_only():
-            self.build_requires("gtest/1.14.0")
+            self.test_requires("gtest/1.14.0")
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def validate(self):
+        minimal_cpp_standard = "17"
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, minimal_cpp_standard)
+        minimal_version = self._compiler_support_lut()
+
+        compiler = str(self.settings.compiler)
+        if compiler not in minimal_version:
+            self.output.warning(
+                "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
+            self.output.warning(
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+            return
+
+        version = Version(self.settings.compiler.version)
+        if version < minimal_version[compiler]:
+            raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+
+    def layout(self):
+        cmake_layout(self, src_folder="src", build_folder=".")
+        self.folders.generators = ""
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL"] = True
+        tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_CONAN_BUILD"] = True
+        tc.variables[
+            "@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS"
+        ] = not self._is_package_only()
+
+        tc.generate()
+
+        cmake_deps = CMakeDeps(self)
+        cmake_deps.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "dev", "so_5"))
+        cmake.build()
 
 #%if not @header_only
     def package_id(self):
         self.info.clear()
 
 #%end if
-    def configure(self):
-        minimal_cpp_standard = "17"
-        if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {
-            "gcc": "9",
-            "clang": "10",
-        }
-        compiler = str(self.settings.compiler)
-        if compiler not in minimal_version:
-            self.output.warn(
-                (
-                    "%s recipe lacks information about the %s compiler "
-                    "standard version support"
-                )
-                % (self.name, compiler)
-            )
-            self.output.warn(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
-            )
-            return
-
-        version = tools.Version(self.settings.compiler.version)
-        if version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
-            )
-
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-
-        self._cmake = CMake(self)
-        self._cmake.definitions["@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL"] = True
-        self._cmake.definitions["@{PROJECT_CMAKE_VAR_SUFFIX}_CONAN_BUILD"] = True
-        self._cmake.definitions[
-            "@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS"
-        ] = not self._is_package_only()
-
-        self._cmake.configure()
-        return self._cmake
 
     def build(self):
 #%if @header_only
         pass
 #%else
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=self.source_folder)
         cmake.build()
 #%end if
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_find_mode", "both")
+        self.cpp_info.set_property("cmake_file_name", self.name)
+
 #%if "corporate_tag" in self.keys()
         component_name = "@{name}"
 #%else
         component_name = "_@{name}"
 #%end if
-        self.cpp_info.names["cmake_find_package"] = self.name
-        self.cpp_info.names["cmake_find_package_multi"] = self.name
+        self.cpp_info.components[component_name].set_property("cmake_target_name", f"{self.name}::@{name}")
+        # TODO: consider adding alloaces
+        # self.cpp_info.components[component_name].set_property("cmake_target_aliases", [f"{self.name}::{self.name}"])
+        self.cpp_info.components[component_name].set_property("pkg_config_name", self.name)
 #%if not @header_only
         self.cpp_info.components[component_name].libs = [self.name]
 #%end if
-        self.cpp_info.components[component_name].requires = [
-            # TODO: add your libraries here.
-            "fmt::fmt",
-        ]
-        self.cpp_info.components[
-            component_name
-        ].set_property("cmake_target_name", f"{self.name}::@{name}")
-        self.cpp_info.components[component_name].defines.append(
-            "@{library_macros}"
-        )
+
+        # OS dependent settings
+        # Here is an example:
+        # if self.settings.os in ["Linux", "FreeBSD"]:
+        #     self.cpp_info.components[component_name].system_libs.append("m")
+        #     self.cpp_info.components[component_name].system_libs.append("pthread")
