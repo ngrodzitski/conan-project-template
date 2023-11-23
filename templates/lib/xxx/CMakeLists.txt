@@ -64,9 +64,8 @@ list(APPEND target_src
     src/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/pub.cpp
     src/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/impl/helpers.cpp
 )
+
 #%end if
-
-
 # ====================================================================
 # TARGET
 # ====================================================================
@@ -76,13 +75,13 @@ add_library(${TARGET_PROJECT} INTERFACE ${TARGET_PUBLIC_HEADERS})
 add_library(${TARGET_PROJECT} STATIC ${TARGET_PUBLIC_HEADERS}
                                      ${target_private_headers}
                                      ${target_src}
-                                     )
+)
 #%end if
 add_library(${TARGET_PROJECT}::${TARGET_PROJECT} ALIAS ${TARGET_PROJECT})
 add_library(${TARGET_PROJECT}::${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} ALIAS ${TARGET_PROJECT})
 
 set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-message("${TARGET_PROJECT} include_dir: ${PROJECT_INCLUDE_DIR}")
+message(STATUS "${TARGET_PROJECT} include_dir: ${PROJECT_INCLUDE_DIR}")
 
 target_include_directories(${TARGET_PROJECT}
 #%if @header_only

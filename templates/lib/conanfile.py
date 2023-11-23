@@ -125,7 +125,7 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
     def layout(self):
-        cmake_layout(self, src_folder="src", build_folder=".")
+        cmake_layout(self, src_folder=".", build_folder=".")
         self.folders.generators = ""
 
     def generate(self):
@@ -141,25 +141,15 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
         cmake_deps = CMakeDeps(self)
         cmake_deps.generate()
 
-    def build(self):
-        cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "dev", "so_5"))
-        cmake.build()
-
-#%if not @header_only
+#%if @header_only
     def package_id(self):
         self.info.clear()
 
 #%end if
-
     def build(self):
-#%if @header_only
-        pass
-#%else
         cmake = CMake(self)
         cmake.configure(build_script_folder=self.source_folder)
         cmake.build()
-#%end if
 
     def package(self):
         cmake = CMake(self)
@@ -182,6 +172,10 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
 #%if not @header_only
         self.cpp_info.components[component_name].libs = [self.name]
 #%end if
+        self.cpp_info.components[component_name].requires = [
+            # TODO: add dependencies here.
+            "fmt::fmt"
+        ]
 
         # OS dependent settings
         # Here is an example:
