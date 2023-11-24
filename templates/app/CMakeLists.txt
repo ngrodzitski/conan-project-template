@@ -9,51 +9,18 @@ project(${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}_root CXX)
 project(@{project_cmake_var_suffix}_${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}_root CXX)
 #%end if
 
-option(@{PROJECT_CMAKE_VAR_SUFFIX}_CONAN_BUILD
-    "A flag that tells if this is a conan controlled build" OFF)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/cpp_standard.cmake")
+# ------------------------------------------------------------------------------
+# Various helpers:
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/common_options.cmake")
 
-if (@{PROJECT_CMAKE_VAR_SUFFIX}_CONAN_BUILD)
-    # Using conan "cmake" generator for packaging.
-    # https://docs.conan.io/en/latest/integrations/build_system/cmake/cmake_generator.html#cmake-generator
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup(TARGETS)
+set(COMPILER_ENABLE_UNUSED_X_AS_ERROR OFF)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/compiler_flags.cmake")
 
-else ()
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/libcxx.cmake")
-    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_runtime.cmake" )
-
-    if ("${@{PROJECT_CMAKE_VAR_SUFFIX}_CPPSTD}" STREQUAL "20" )
-        message(STATUS "ENABLE C++20")
-        cxx_20()
-    else ()
-        message(STATUS "ENABLE C++17")
-        cxx_17()
-    endif ()
-
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-    # ------------------------------------------------------------------------------
-    # Assume using conan "cmake_find_package" generator.
-    # https://docs.conan.io/en/latest/integrations/build_system/cmake/cmake_find_package_generator.html
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
-    # ------------------------------------------------------------------------------
-
-    handle_explicit_libcxx_if_necessary()
-    handle_explicit_static_runtime_if_necessary()
-
-    # ------------------------------------------------------------------------------
-    # Various helpers:
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/common_options.cmake")
-
-    set(COMPILER_ENABLE_UNUSED_X_AS_ERROR OFF)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/compiler_flags.cmake")
-
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/find_program_required.cmake")
-    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_analysis.cmake" )
-    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/code_coverage.cmake" )
-endif ()
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/find_program_required.cmake")
+include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_analysis.cmake" )
+include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/code_coverage.cmake" )
 
 # ------------------------------------------------------------------------------
 # Build options

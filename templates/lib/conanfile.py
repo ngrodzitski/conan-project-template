@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import get, copy, rmdir, collect_libs
+from conan.tools.files import rmdir
 from conan.tools.scm import Version
 import os, sys, re
 
@@ -15,7 +15,6 @@ required_conan_version = ">=1.53.0"
 #%set @ctag=""
 #%end if
 class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
-
     def set_version(self):
         version_file_path = os.path.join(
             self.recipe_folder,
@@ -64,7 +63,6 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
     ]
     no_copy_source = False
     build_policy = "missing"
-    _cmake = None
 
     def _compiler_support_lut(self):
         return {
@@ -74,7 +72,6 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
             "Visual Studio": "17",
             "msvc": "191"
         }
-
 
     # This hint tells that this conanfile acts as
     # a conanfile for a package, which implies
@@ -131,7 +128,6 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL"] = True
-        tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_CONAN_BUILD"] = True
         tc.variables[
             "@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS"
         ] = not self._is_package_only()
