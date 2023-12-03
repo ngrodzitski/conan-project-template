@@ -78,7 +78,9 @@ add_library(${TARGET_PROJECT} STATIC ${TARGET_PUBLIC_HEADERS}
 )
 #%end if
 add_library(${TARGET_PROJECT}::${TARGET_PROJECT} ALIAS ${TARGET_PROJECT})
+#%if @project_cmake_var_suffix != @name
 add_library(${TARGET_PROJECT}::${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} ALIAS ${TARGET_PROJECT})
+#%end if
 
 set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 message(STATUS "${TARGET_PROJECT} include_dir: ${PROJECT_INCLUDE_DIR}")

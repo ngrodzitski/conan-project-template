@@ -99,10 +99,12 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
         if not self._is_package_only():
             self.test_requires("gtest/1.14.0")
 
+#%if not @header_only
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+#%end if
     def validate(self):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):

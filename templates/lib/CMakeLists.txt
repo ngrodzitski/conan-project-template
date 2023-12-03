@@ -19,8 +19,8 @@ set(COMPILER_ENABLE_UNUSED_X_AS_ERROR OFF)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/compiler_flags.cmake")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/find_program_required.cmake")
-include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_analysis.cmake" )
-include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/code_coverage.cmake" )
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_analysis.cmake" )
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/code_coverage.cmake" )
 
 # ------------------------------------------------------------------------------
 # Build options
