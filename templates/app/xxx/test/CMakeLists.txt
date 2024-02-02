@@ -18,7 +18,7 @@ target_link_libraries(${test_prj}
 #%if @project_cmake_var_suffix == @name
                       @{name}::@{name}_lib
 #%else
-                      @{project_cmake_var_suffix}@{name}::@{project_cmake_var_suffix}@{name}_lib
+                      @{project_cmake_var_suffix}_@{name}::@{project_cmake_var_suffix}_@{name}_lib
 #%end if
 )
 

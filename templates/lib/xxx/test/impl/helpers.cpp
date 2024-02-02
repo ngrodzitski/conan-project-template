@@ -9,8 +9,8 @@ namespace /* anonymous */
 using namespace ${cpp_namespace_prefix}${name};
 
 // NOLINTNEXTLINE
-//#if "corporate_tag" in self.keys()
-TEST( ${corporate_tag.lower().capitalize()}${camel_name}ImplHelpers, MakeCanonicalName )
+//#if "corporate_tag_camel" in self.keys()
+TEST( ${corporate_tag_camel}${camel_name}ImplHelpers, MakeCanonicalName )
 //#else
 TEST( ${camel_name}ImplHelpers, MakeCanonicalName )
 //#end if

@@ -1,8 +1,8 @@
 // clang-format off
 #pragma once
 
-//#if "corporate_tag" in self.keys()
-//#set $macro_prefix = $corporate_tag.upper() + "_" + $name.upper()
+//#if "corporate_tag_normalized_word" in self.keys()
+//#set $macro_prefix = $corporate_tag_normalized_word.upper() + "_" + $name.upper()
 //#else
 //#set $macro_prefix = $name.upper()
 //#end if

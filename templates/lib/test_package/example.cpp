@@ -4,12 +4,10 @@
 #include <${src_path_prefix}${name}/pub.hpp>
 
 int main() {
-//#if "corporate_tag" in self.keys()
-//#set $macro_prefix = $corporate_tag.upper() + "_" + $name.upper()
-//#set $ctag = $corporate_tag.lower()
+//#if "corporate_tag_normalized_word" in self.keys()
+//#set $macro_prefix = $corporate_tag_normalized_word.upper() + "_" + $name.upper()
 //#else
 //#set $macro_prefix = $name.upper()
-//#set $ctag = ""
 //#end if
     std::cout << "Welcome to ${name} ("
               << "v" << ${macro_prefix}_VERSION_MAJOR << "." << ${macro_prefix}_VERSION_MINOR << "."
