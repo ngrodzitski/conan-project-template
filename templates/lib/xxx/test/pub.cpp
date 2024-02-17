@@ -9,8 +9,8 @@ namespace /* anonymous */
 using namespace ${cpp_namespace_prefix}${name};
 
 // NOLINTNEXTLINE
-//#if "corporate_tag" in self.keys()
-TEST( ${corporate_tag.lower().capitalize()}${camel_name}, MakeCanonicalSample )
+//#if "corporate_tag_camel" in self.keys()
+TEST( ${corporate_tag_camel}${camel_name}, MakeCanonicalSample )
 //#else
 TEST( ${camel_name}, MakeCanonicalSample )
 //#end if
@@ -19,8 +19,8 @@ TEST( ${camel_name}, MakeCanonicalSample )
     EXPECT_EQ( make_canonical_sample( "x\xFFyz" ).name(), "x\\xFFyz" );
 }
 
-//#if "corporate_tag" in self.keys()
-TEST( ${corporate_tag.lower().capitalize()}${camel_name}, Format )
+//#if "corporate_tag_camel" in self.keys()
+TEST( ${corporate_tag_camel}${camel_name}, Format )
 //#else
 TEST( ${camel_name}, Format )
 //#end if

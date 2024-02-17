@@ -41,7 +41,7 @@ message(STATUS "${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} SOVERSION: " ${PRJ_S
 #%if @project_cmake_var_suffix == @name
 set(TARGET_PROJECT ${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})
 #%else
-set(TARGET_PROJECT @{project_cmake_var_suffix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})
+set(TARGET_PROJECT @{project_cmake_var_suffix}_${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})
 #%end if
 
 project(${TARGET_PROJECT} LANGUAGES CXX VERSION ${PRJ_VERSION})

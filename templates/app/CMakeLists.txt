@@ -33,6 +33,8 @@ message(STATUS "@{PROJECT_CMAKE_VAR_SUFFIX}_INSTAL:            ${@{PROJECT_CMAKE
 message(STATUS "@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TEST:        ${@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS}")
 message(STATUS "@{PROJECT_CMAKE_VAR_SUFFIX}_GCC_CODE_COVERAGE: ${@{PROJECT_CMAKE_VAR_SUFFIX}_GCC_CODE_COVERAGE}")
 
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+
 # TODO: Add conan-provided libraries here:
 find_package(fmt REQUIRED)
 
@@ -54,7 +56,6 @@ if (@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS)
     enable_testing()
     message(STATUS "Tests are enabled")
 
-    set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
     find_package(GTest MODULE REQUIRED)
 
     add_subdirectory(${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/test)

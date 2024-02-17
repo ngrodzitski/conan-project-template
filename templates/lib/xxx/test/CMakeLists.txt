@@ -22,7 +22,7 @@ target_link_libraries(${test_prj}
 #%if @project_cmake_var_suffix == @name
                       @{name}::@{name}
 #%else
-                      @{project_cmake_var_suffix}@{name}::@{name}
+                      @{project_cmake_var_suffix}_@{name}::@{name}
 #%end if
 )
 

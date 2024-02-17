@@ -53,7 +53,7 @@ jobs:
         if: ${{ matrix.corporate_tag != '' }}
         shell: bash
         run: |
-            echo "--corporate-tag grdz" >> genargs
+            echo "--corporate-tag ${{ matrix.corporate_tag }}" >> genargs
 
       - name: Generate
         shell: bash
@@ -118,6 +118,7 @@ jobs:
         corporate_tag:
           - ""
           - "kola"
+          - "grdz::kola"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -141,7 +142,7 @@ jobs:
         if: ${{ matrix.corporate_tag != '' }}
         shell: bash
         run: |
-            echo "--corporate-tag grdz" >> genargs
+            echo "--corporate-tag ${{ matrix.corporate_tag }}" >> genargs
 
       - name: Generate
         shell: bash

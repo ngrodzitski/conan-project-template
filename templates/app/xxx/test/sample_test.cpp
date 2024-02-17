@@ -6,8 +6,8 @@ namespace /* anonymous */
 {
 
 // NOLINTNEXTLINE
-//#if "corporate_tag" in self.keys()
-TEST( ${corporate_tag.lower().capitalize()}${camel_name}, SampleTest )
+//#if "corporate_tag_cammel" in self.keys()
+TEST( ${corporate_tag_cammel}${camel_name}, SampleTest )
 //#else
 TEST( ${camel_name}, SampleTest )
 //#end if

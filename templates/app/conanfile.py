@@ -6,8 +6,8 @@ from conan.tools.files import rmdir
 from conan.tools.scm import Version
 import os, sys, re
 
-#%if "corporate_tag" in self.keys()
-class @{corporate_tag.lower().capitalize()}@{camel_name}Conan(ConanFile):
+#%if "corporate_tag_camel" in self.keys()
+class @{corporate_tag_camel}@{camel_name}Conan(ConanFile):
 #%else
 class @{camel_name}Conan(ConanFile):
 #%end if
@@ -31,8 +31,8 @@ class @{camel_name}Conan(ConanFile):
             else:
                 raise ValueError(f"cannot detect version from {version_file_path}")
 
-#%if "corporate_tag" in self.keys()
-    name = "@{corporate_tag.lower()}@{name}"
+#%if "corporate_tag_normalized_word" in self.keys()
+    name = "@{corporate_tag_normalized_word.lower()}_@{name}"
 #%else
     name = "@{name}"
 #%end if
