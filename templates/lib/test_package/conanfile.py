@@ -4,12 +4,12 @@ from conan.tools.cmake import CMake, cmake_layout
 import os
 
 
-#%if "corporate_tag" in self.keys()
-#%set @ctag=@corporate_tag.lower()
+#%if "corporate_tag_camel" in self.keys()
+#%set @ctag=@corporate_tag_camel
 #%else
 #%set @ctag=""
 #%end if
-class @{ctag.capitalize()}@{camel_name}ConanTest(ConanFile):
+class @{ctag}@{camel_name}ConanTest(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
     test_type = "explicit"

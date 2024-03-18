@@ -130,13 +130,17 @@ def generate_stub_project(args):
     }
 
     if args.corporate_tag:
-        gen_params["PROJECT_CMAKE_VAR_SUFFIX"] = args.corporate_tag.upper()
-        gen_params["project_cmake_var_suffix"] = args.corporate_tag.lower()
-        gen_params["corporate_tag"] = args.corporate_tag
+        corporate_tag_normalized_word = args.corporate_tag.replace("::", "_")
+        corporate_tag_normalized_path = args.corporate_tag.replace("::", "/")
+        gen_params["PROJECT_CMAKE_VAR_SUFFIX"] = corporate_tag_normalized_word.upper()
+        gen_params["project_cmake_var_suffix"] = corporate_tag_normalized_word.lower()
+        gen_params["corporate_tag_cammel"] = args.corporate_tag.replace("::"," ").title().replace(" ", "")
+        gen_params["corporate_tag_normalized_word"] = corporate_tag_normalized_word
+        gen_params["corporate_tag_normalized_path"] = corporate_tag_normalized_path
         if args.project_type == "lib":
-            gen_params["library_macros"] = f"{args.corporate_tag.upper()}_LIB_{args.name.upper()}"
+            gen_params["library_macros"] = f"{corporate_tag_normalized_word.upper()}_LIB_{args.name.upper()}"
 
-        gen_params["src_path_prefix"] = f"{args.corporate_tag}/"
+        gen_params["src_path_prefix"] = f"{corporate_tag_normalized_path}/"
         gen_params["cpp_namespace_prefix"] = f"{args.corporate_tag}::"
     else:
         gen_params["PROJECT_CMAKE_VAR_SUFFIX"] = args.name.upper()
@@ -255,6 +259,33 @@ def generate_stub_project(args):
             generate_cpp_piece
         )
 
+    print( """To build the project you can use the following commands:
+
+# Linux
+
+conan install . -pr:a my_profile --build missing -of build_dir
+(source ./build_dir/conanbuild.sh && cmake -Bbuild_dir . -DCMAKE_TOOLCHAIN_FILE=build_dir/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release)
+cmake --build build_dir -j $(nproc) --verbose
+
+# Build with ubu-gcc11 profile
+conan install . -pr:a ubu-gcc11 --build missing -s:a build_type=Debug -of _build
+(source ./_build/conanbuild.sh && cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug)
+cmake --build _build -j 6 --verbose
+
+# Windows
+
+conan install . -pr:a my_profile --build missing -of build_dir
+build_dir/conanbuild.bat
+cmake -Bbuild_dir . -DCMAKE_TOOLCHAIN_FILE=build_dir/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build_dir -j %NUMBER_OF_PROCESSORS% --verbose
+
+# Build with vs2022 profile
+conan install . -pr:a vs2022 --build missing -s:a build_type=Debug -of _build
+./_build/conanbuild.bat
+cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug --config Debug
+cmake --build _build -j 6 --verbose
+""")
+
 
 class CheckNiceCIdentifierAction(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
@@ -267,6 +298,21 @@ class CheckNiceCIdentifierAction(argparse.Action):
             raise argparse.ArgumentError(
                 self, f"not nice c identifier: '{value}'"
             )
+        setattr(namespace, self.dest, value)
+
+class CheckNiceCIdentifierWithNsAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        # Require to start with letter, even though "_"
+        # is a legit first character for c-idntifier, but it is an odd name
+        # we would like to avoid.
+        pattern = re.compile(r"^[a-zA-Z]\w*$")
+
+        for substr in value.split("::"):
+            if substr == "" or not bool(pattern.match(substr)):
+                raise argparse.ArgumentError(
+                    self, f"not nice c identifier with namespace: '{value}'"
+                )
+
         setattr(namespace, self.dest, value)
 
 
@@ -316,7 +362,7 @@ if __name__ == "__main__":
         "--corporate-tag",
         metavar="corporate-tag",
         help="Add a corporate tag, used as a top level namespace",
-        action=CheckNiceCIdentifierAction
+        action=CheckNiceCIdentifierWithNsAction
     )
 
     generate_stub_project(parser.parse_args())

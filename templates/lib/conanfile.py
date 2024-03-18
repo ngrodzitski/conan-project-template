@@ -9,12 +9,12 @@ import os, sys, re
 required_conan_version = ">=1.53.0"
 
 
-#%if "corporate_tag" in self.keys()
-#%set @ctag=@corporate_tag.lower()
+#%if "camel_name" in self.keys()
+#%set @ctag=@camel_name
 #%else
 #%set @ctag=""
 #%end if
-class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
+class @{ctag}@{camel_name}Conan(ConanFile):
     def set_version(self):
         version_file_path = os.path.join(
             self.recipe_folder,
@@ -44,7 +44,11 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
     }
 
 #%end if
-    name = "@{ctag}@{name}"
+#%if "corporate_tag_normalized_word" in self.keys()
+    name = "@{corporate_tag_normalized_word.lower()}_@{name}"
+#%else
+    name = "@{name}"
+#%end if
 
     license = "TODO"
     author = "TODO"
@@ -84,8 +88,8 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
             self.ACT_AS_PACKAGE_ONLY_CONANFILE
             # The environment variable below can be used
             # to run conan create localy (used for debugging issues).
-#%if "corporate_tag" in self.keys()
-            or os.environ.get("@{corporate_tag.upper()}_CONAN_PACKAGING") == "ON"
+#%if "corporate_tag_normalized_word" in self.keys()
+            or os.environ.get("@{corporate_tag_normalized_word.upper()}_CONAN_PACKAGING") == "ON"
 #%else
             or os.environ.get("@{name.upper()}_CONAN_PACKAGING") == "ON"
 #%end if
@@ -158,7 +162,7 @@ class @{ctag.capitalize()}@{camel_name}Conan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", self.name)
 
-#%if "corporate_tag" in self.keys()
+#%if "corporate_tag_normalized_word" in self.keys()
         component_name = "@{name}"
 #%else
         component_name = "_@{name}"
