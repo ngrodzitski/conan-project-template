@@ -79,11 +79,11 @@ On Windows:
 conan install . -pr:a my_profile --build missing -of build_dir
 build_dir/conanbuild.bat
 cmake -Bbuild_dir . -DCMAKE_TOOLCHAIN_FILE=build_dir/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build_dir -j %NUMBER_OF_PROCESSORS% --verbose
+cmake --build build_dir -j %NUMBER_OF_PROCESSORS% --verbose --config Release
 
 # Build with vs2022 profile
 conan install . -pr:a vs2022 --build missing -s:a build_type=Debug -of _build
 ./_build/conanbuild.bat
-cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug --config Debug
-cmake --build _build -j 6 --verbose
+cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
+cmake --build _build -j 6 --verbose --config Debug
 ```
