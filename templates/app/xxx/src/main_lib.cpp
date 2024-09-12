@@ -23,7 +23,7 @@ int main(int argc, const char** argv)
 //#set $macro_prefix = $name.upper()
 //#end if
     std::cout << fmt::format( "{} v{}.{}.{}",
-                              fs::path( argv[ 0 ] ).filename().native(),
+                              fs::path( argv[ 0 ] ).filename().string(),
                               ${macro_prefix}_VERSION_MAJOR,
                               ${macro_prefix}_VERSION_MINOR,
                               ${macro_prefix}_VERSION_PATCH ) << std::endl;

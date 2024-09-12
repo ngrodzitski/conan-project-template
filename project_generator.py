@@ -281,9 +281,9 @@ cmake --build build_dir -j %NUMBER_OF_PROCESSORS% --verbose
 
 # Build with vs2022 profile
 conan install . -pr:a vs2022 --build missing -s:a build_type=Debug -of _build
-./_build/conanbuild.bat
-cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug --config Debug
-cmake --build _build -j 6 --verbose
+_build\conanbuild.bat
+cmake -B_build . -DCMAKE_TOOLCHAIN_FILE="_build\conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Debug
+cmake --build _build -j 6 --verbose --config Debug
 """)
 
 
