@@ -3,6 +3,7 @@ import re
 import os
 import json
 import shutil
+from pathlib import Path
 from Cheetah.Template import Template
 
 try:
@@ -22,8 +23,13 @@ def print_params(args):
 
         table.add_row(["Project type", args.project_type])
         table.add_row(["Target directory", args.dir_path])
-        table.add_row(["Project name", args.name])
+        table.add_row(["snake_case project name", args.name])
         table.add_row(["CamelCase project name", args.camel_name])
+
+        table.add_row(["Style", args.style])
+
+        if args.project_type == "app":
+            table.add_row(["Qt QML", args.qml])
 
         if args.project_type == "lib":
             table.add_row(["Header-only", args.header_only])
@@ -35,8 +41,11 @@ def print_params(args):
         print("=" * 60)
         print(f"Project type: {args.project_type}")
         print(f"Generating stub project in directory: {args.dir_path}")
-        print(f"Project name: {args.name}")
+        print(f"snake_case project name: {args.name}")
         print(f"Camel Naming project name: {args.camel_name}")
+        print(f"Style: {args.style}")
+        if args.project_type == "app":
+            print(f"Qt QML: {args.header_only}")
         if args.project_type == "lib":
             print(f"Header Only: {args.header_only}")
 
@@ -78,8 +87,10 @@ def print_gen_file_report(src, dest):
     print(f"[GEN] $(gen-root)/{src}{' '*max([40 -len(src), 1])} => {dest}")
 
 def copy_static_files(dest_dir, src_dir, fnames):
+    print(f"[CALL] copy_static_files({dest_dir}, {src_dir}, ...)\n\n")
     for fname in fnames:
         dest_file_path=os.path.join(dest_dir, fname)
+        Path(dest_file_path).parent.mkdir(parents=True, exist_ok=True)
         src_file_path=os.path.join(src_dir, fname)
         shutil.copy2(src_file_path, dest_file_path)
         print_gen_file_report(f"static/{fname}", dest_file_path)
@@ -121,11 +132,14 @@ def generate_stub_project(args):
 
     dest_dir = args.dir_path
     if not os.path.exists(dest_dir):
-        os.mkdir(dest_dir)
+        Path(dest_dir).mkdir(parents=True)
 
     gen_params = {
         "name": args.name,
         "camel_name": args.camel_name,
+        "styled_name": args.camel_name if args.style == "Camel" else args.name ,
+        "style": args.style,
+        "qml": args.qml,
         "header_only": args.header_only,
     }
 
@@ -158,60 +172,76 @@ def generate_stub_project(args):
 
     gen = GeneratorRunner( dest_dir, template_src_dir, gen_params)
 
+    if (args.qml):
+        copy_static_files(
+            dest_dir = os.path.join(dest_dir, gen_params['styled_name']),
+            src_dir = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "templates/app/xxx"),
+            fnames = ["qml/MyButton.qml",
+                      "images/sample_image.png",
+                      "js/CommonUtils.js",
+                      "fonts/blocks-3x3-monospaced.ttf"] )
+        gen.generate_file(
+            "xxx/qml/MyMainWindow.qml",
+            f"{gen_params['styled_name']}/qml/MyMainWindow.qml",
+            generate_md_py_cmake_piece
+        )
+
     gen.generate_file( "README.md", "README.md", generate_md_py_cmake_piece)
     gen.generate_file( "CMakeLists.txt", "CMakeLists.txt", generate_md_py_cmake_piece)
     gen.generate_file( "conanfile.py", "conanfile.py", generate_md_py_cmake_piece)
-    gen.generate_file( "xxx/CMakeLists.txt", f"{gen_params['name']}/CMakeLists.txt", generate_md_py_cmake_piece)
+    gen.generate_file( "xxx/CMakeLists.txt", f"{gen_params['styled_name']}/CMakeLists.txt", generate_md_py_cmake_piece)
 
     gen.generate_file(
         "xxx/include/version.hpp",
-        f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/version.hpp",
+        f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/version.hpp",
         generate_cpp_piece
     )
 
     if args.project_type == "lib":
         gen.generate_file(
             "xxx/include/pub.hpp",
-            f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/pub.hpp",
+            f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/pub.hpp",
             generate_cpp_piece
         )
 
         if not args.header_only:
             gen.generate_file(
                 "xxx/src/pub.cpp",
-                f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/pub.cpp",
+                f"{gen_params['styled_name']}/src/{gen_params['src_path_prefix']}{gen_params['styled_name']}/pub.cpp",
                 generate_cpp_piece
             )
             gen.generate_file(
                 "xxx/include/impl/helpers.hpp",
-                f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/impl/helpers.hpp",
+                f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/impl/helpers.hpp",
                 generate_cpp_piece
             )
             gen.generate_file(
                 "xxx/src/impl/helpers.cpp",
-                f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/impl/helpers.cpp",
+                f"{gen_params['styled_name']}/src/{gen_params['src_path_prefix']}{gen_params['styled_name']}/impl/helpers.cpp",
                 generate_cpp_piece
             )
 
         gen.generate_file(
             "xxx/test/CMakeLists.txt",
-            f"{gen_params['name']}/test/CMakeLists.txt",
+            f"{gen_params['styled_name']}/test/CMakeLists.txt",
             generate_md_py_cmake_piece
         )
         gen.generate_file(
             "xxx/test/pub.cpp",
-            f"{gen_params['name']}/test/pub.cpp",
+            f"{gen_params['styled_name']}/test/pub.cpp",
             generate_cpp_piece
         )
         if not args.header_only:
             gen.generate_file(
                 "xxx/test/impl/helpers.cpp",
-                f"{gen_params['name']}/test/impl/helpers.cpp",
+                f"{gen_params['styled_name']}/test/impl/helpers.cpp",
                 generate_cpp_piece
             )
         gen.generate_file(
             "xxx/cmake/lib-config.cmake.in",
-            f"{gen_params['name']}/cmake/lib-config.cmake.in",
+            f"{gen_params['styled_name']}/cmake/lib-config.cmake.in",
             generate_md_py_cmake_piece
         )
 
@@ -234,28 +264,30 @@ def generate_stub_project(args):
     if args.project_type == "app":
         gen.generate_file(
             "xxx/include/main.hpp",
-            f"{gen_params['name']}/include/{gen_params['src_path_prefix']}{gen_params['name']}/main.hpp",
+            f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/main.hpp",
             generate_cpp_piece
         )
         gen.generate_file(
             "xxx/src/main_lib.cpp",
-            f"{gen_params['name']}/src/{gen_params['src_path_prefix']}{gen_params['name']}/main.cpp",
+            f"{gen_params['styled_name']}/src/{gen_params['src_path_prefix']}{gen_params['styled_name']}/main.cpp",
             generate_cpp_piece
         )
         gen.generate_file(
             "xxx/src/main_exe.cpp",
-            f"{gen_params['name']}/src/main.cpp",
+            f"{gen_params['styled_name']}/src/main.cpp",
             generate_cpp_piece
         )
 
         gen.generate_file(
             "xxx/test/CMakeLists.txt",
-            f"{gen_params['name']}/test/CMakeLists.txt",
+            f"{gen_params['styled_name']}/test/CMakeLists.txt",
             generate_md_py_cmake_piece
         )
+
+        sample_test_name = "SampleTest" if args.style == "Camel" else "sample_test"
         gen.generate_file(
             "xxx/test/sample_test.cpp",
-            f"{gen_params['name']}/test/sample_test.cpp",
+            f"{gen_params['styled_name']}/test/{sample_test_name}.cpp",
             generate_cpp_piece
         )
 
@@ -267,8 +299,8 @@ conan install . -pr:a my_profile --build missing -of build_dir
 (source ./build_dir/conanbuild.sh && cmake -Bbuild_dir . -DCMAKE_TOOLCHAIN_FILE=build_dir/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release)
 cmake --build build_dir -j $(nproc) --verbose
 
-# Build with ubu-gcc11 profile
-conan install . -pr:a ubu-gcc11 --build missing -s:a build_type=Debug -of _build
+# Build with ubu-gcc-11 profile
+conan install . -pr:a ubu-gcc-11 --build missing -s:a build_type=Debug -of _build
 (source ./_build/conanbuild.sh && cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug)
 cmake --build _build -j 6 --verbose
 
@@ -316,6 +348,7 @@ class CheckNiceCIdentifierWithNsAction(argparse.Action):
         setattr(namespace, self.dest, value)
 
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate conan-based project stub (a starter)"
@@ -327,6 +360,19 @@ if __name__ == "__main__":
         metavar="project-type",
         help="Project type (allowed values: 'app', 'lib')",
         required=True,
+    )
+    parser.add_argument(
+        "--qml",
+        action="store_true",
+        help="Create a Qt QML application",
+        default=False,
+    )
+    parser.add_argument(
+        "--style",
+        choices=["Camel", "snake"],
+        metavar="style",
+        help="Use snake_case (default) or CamelCase, (allowed values: 'snake', 'Camel') ",
+        default='snake_case',
     )
     parser.add_argument(
         "-d",
@@ -365,4 +411,18 @@ if __name__ == "__main__":
         action=CheckNiceCIdentifierWithNsAction
     )
 
-    generate_stub_project(parser.parse_args())
+    args = parser.parse_args()
+
+    if args.project_type == 'app':
+        if args.header_only:
+            raise argparse.ArgumentError(
+                self, f"header-only option is only applicable to lib projects"
+            )
+
+    if args.project_type == 'lib':
+        if args.qml:
+            raise argparse.ArgumentError(
+                self, f"qml option is only applicable to app projects"
+            )
+
+    generate_stub_project(args)

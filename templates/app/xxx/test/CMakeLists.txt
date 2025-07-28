@@ -4,8 +4,12 @@ project(${test_prj})
 
 list(APPEND  unittests_srcfiles
     #TODO: adjust as necessary
+#%if @style == "Camel"
+     SampleTest.cpp
+#%else
      sample_test.cpp
-     )
+#%end if
+)
 
 add_executable(${test_prj} ${unittests_srcfiles})
 
@@ -16,9 +20,9 @@ endif ()
 target_link_libraries(${test_prj}
                       GTest::gtest_main
 #%if @project_cmake_var_suffix == @name
-                      @{name}::@{name}_lib
+                      @{styled_name}::@{styled_name}_lib
 #%else
-                      @{project_cmake_var_suffix}_@{name}::@{project_cmake_var_suffix}_@{name}_lib
+                      @{project_cmake_var_suffix}_@{styled_name}::@{project_cmake_var_suffix}_@{name}_lib
 #%end if
 )
 

@@ -1,9 +1,9 @@
-# Root CMake for @{name} project.
+# Root CMake for @{styled_name} project.
 cmake_minimum_required(VERSION 3.15)
 
-set(@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME @{name})
+set(@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME @{styled_name})
 
-#%if @project_cmake_var_suffix == @name
+#%if @project_cmake_var_suffix == @styled_name
 project(${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}_root CXX)
 #%else
 project(@{project_cmake_var_suffix}_${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}_root CXX)
@@ -38,10 +38,17 @@ set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 # TODO: Add conan-provided libraries here:
 find_package(fmt REQUIRED)
 
+#%if @qml
+# TODO: Adjust version and components as necessary
+find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Qml Quick)
+message(STATUS "Qt6_FOUND=${Qt6_FOUND}")
+message(STATUS "Qt6_DIR=${Qt6_DIR}")
+
+#%end if
 if (@{PROJECT_CMAKE_VAR_SUFFIX}_GCC_CODE_COVERAGE)
     make_code_coverage_targets(
         NAME CodeCoverage
-        HTML_TITLE "Code coverage report for @name library"
+        HTML_TITLE "Code coverage report for @styled_name app"
         FILTERS
             '${CMAKE_SOURCE_DIR}/${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/src/.*'
             '${CMAKE_SOURCE_DIR}/${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/include/.*'

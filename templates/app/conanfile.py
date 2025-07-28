@@ -15,7 +15,7 @@ class @{camel_name}Conan(ConanFile):
     def set_version(self):
         version_file_path = os.path.join(
             self.recipe_folder,
-            "@{name}/include/@{src_path_prefix}@{name}/version.hpp"
+            "@{styled_name}/include/@{src_path_prefix}@{styled_name}/version.hpp"
         )
         with open(version_file_path, 'r') as file:
             content = file.read()
@@ -32,17 +32,17 @@ class @{camel_name}Conan(ConanFile):
                 raise ValueError(f"cannot detect version from {version_file_path}")
 
 #%if "corporate_tag_normalized_word" in self.keys()
-    name = "@{corporate_tag_normalized_word.lower()}_@{name}"
+    name = "@{corporate_tag_normalized_word.lower()}_@{styled_name}"
 #%else
-    name = "@{name}"
+    name = "@{styled_name}"
 #%end if
 
     license = "TODO"
     author = "TODO"
     url = "TODO"
     homepage = "TODO"
-    description = "@{name} application"
-    topics = ("@{name}", "todo")
+    description = "@{styled_name} application"
+    topics = ("@{styled_name}", "todo")
 
     settings = "os", "compiler", "build_type", "arch"
 
