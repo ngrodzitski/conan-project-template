@@ -1,14 +1,10 @@
-set(test_prj _utest.${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME})
+set(test_prj _utest.@{names.cmake_project_name})
 
 project(${test_prj})
 
 list(APPEND  unittests_srcfiles
     #TODO: adjust as necessary
-#%if @style == "Camel"
-     SampleTest.cpp
-#%else
-     sample_test.cpp
-#%end if
+    @{names.sample_test_file_name}
 )
 
 add_executable(${test_prj} ${unittests_srcfiles})
@@ -18,12 +14,9 @@ if (WIN32)
 endif ()
 
 target_link_libraries(${test_prj}
+                      PRIVATE
                       GTest::gtest_main
-#%if @project_cmake_var_suffix == @name
-                      @{styled_name}::@{styled_name}_lib
-#%else
-                      @{project_cmake_var_suffix}_@{styled_name}::@{project_cmake_var_suffix}_@{name}_lib
-#%end if
+                      @{names.cmake_alias_target_name}_lib
 )
 
 include(GoogleTest)
@@ -32,4 +25,4 @@ include(GoogleTest)
 # If the variable is defined test report would also include this tag
 # as a part of the test name.
 gtest_discover_tests(${test_prj}
-                     TEST_PREFIX "${@{PROJECT_CMAKE_VAR_SUFFIX}_TEST_PREFIX}")
+                     TEST_PREFIX "${@{names.cmake_var_suffix_upper}_TEST_PREFIX}")

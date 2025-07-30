@@ -1,4 +1,4 @@
-#include <${src_path_prefix}${styled_name}/version.hpp>
+#include <${names.src_path_prefix}/version.hpp>
 
 #include <iostream>
 #include <filesystem>
@@ -17,7 +17,8 @@
 //#end if
 #include <fmt/format.h>
 
-namespace ${cpp_namespace_prefix}${styled_name} {
+namespace ${names.cpp_namespace}
+{
 
 namespace fs = std::filesystem;
 
@@ -103,7 +104,7 @@ int main(int argc, char** argv)
         Qt::QueuedConnection );
     engine.load( url );
 
-    const auto ${retvalue} = qtApp.exec();
+    const auto ${retvalue} = ${qtapp}.exec();
     if( 0 != ${retvalue} )
     {
         qWarning() << "Application finished with error...";
@@ -113,4 +114,4 @@ int main(int argc, char** argv)
     return 0;
 }
 
-}  // namespace ${cpp_namespace_prefix}${styled_name}
+}  // namespace ${names.cpp_namespace}

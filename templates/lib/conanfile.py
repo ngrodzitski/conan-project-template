@@ -6,19 +6,13 @@ from conan.tools.files import rmdir
 from conan.tools.scm import Version
 import os, sys, re
 
-required_conan_version = ">=1.53.0"
 
+class @{names.conan_file_name}Conan(ConanFile):
 
-#%if "camel_name" in self.keys()
-#%set @ctag=@camel_name
-#%else
-#%set @ctag=""
-#%end if
-class @{ctag}@{camel_name}Conan(ConanFile):
     def set_version(self):
         version_file_path = os.path.join(
             self.recipe_folder,
-            "@{name}/include/@{src_path_prefix}@{name}/version.hpp"
+            "@{names.styled_name}/include/@{names.src_path_prefix}/version.hpp"
         )
         with open(version_file_path, 'r') as file:
             content = file.read()
@@ -30,7 +24,6 @@ class @{ctag}@{camel_name}Conan(ConanFile):
                 major = int(major_match.group(1))
                 minor = int(minor_match.group(1))
                 patch = int(patch_match.group(1))
-
                 self.version = f"{major}.{minor}.{patch}"
             else:
                 raise ValueError(f"cannot detect version from {version_file_path}")
@@ -44,25 +37,21 @@ class @{ctag}@{camel_name}Conan(ConanFile):
     }
 
 #%end if
-#%if "corporate_tag_normalized_word" in self.keys()
-    name = "@{corporate_tag_normalized_word.lower()}_@{name}"
-#%else
-    name = "@{name}"
-#%end if
+    name = "@{names.conan_package_name}"
 
     license = "TODO"
     author = "TODO"
     url = "TODO"
     homepage = "TODO"
-    description = "@{name} library"
+    description = "@{names.styled_name} library"
 
-    topics = ("@{name}", "todo")
+    topics = ("@{names.styled_name}", "todo")
 
     settings = "os", "compiler", "build_type", "arch"
 
     exports_sources = [
         "CMakeLists.txt",
-        "@{name}/*",
+        "@{names.styled_name}/*",
         "cmake-scripts/*"
     ]
     no_copy_source = False
@@ -88,11 +77,7 @@ class @{ctag}@{camel_name}Conan(ConanFile):
             self.ACT_AS_PACKAGE_ONLY_CONANFILE
             # The environment variable below can be used
             # to run conan create localy (used for debugging issues).
-#%if "corporate_tag_normalized_word" in self.keys()
-            or os.environ.get("@{corporate_tag_normalized_word.upper()}_CONAN_PACKAGING") == "ON"
-#%else
-            or os.environ.get("@{name.upper()}_CONAN_PACKAGING") == "ON"
-#%end if
+            or os.environ.get("@{names.cmake_var_suffix_upper}_CONAN_PACKAGING") == "ON"
         )
 
     def requirements(self):
@@ -133,9 +118,9 @@ class @{ctag}@{camel_name}Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL"] = True
+        tc.variables["@{names.cmake_var_suffix_upper}_INSTALL"] = True
         tc.variables[
-            "@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS"
+            "@{names.cmake_var_suffix_upper}_BUILD_TESTS"
         ] = not self._is_package_only()
 
         tc.generate()
@@ -159,21 +144,32 @@ class @{ctag}@{camel_name}Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.set_property("cmake_file_name", self.name)
+        self.cpp_info.set_property("cmake_file_name", "@{names.cmake_project_name}")
+        self.cpp_info.set_property("cmake_target_name", "@{names.cmake_project_name}::@{names.styled_name}")
 
-#%if "corporate_tag_normalized_word" in self.keys()
-        component_name = "@{name}"
+        self.cpp_info.names["cmake_find_package"] = "MyTestLib"
+        self.cpp_info.names["cmake_find_package_multi"] = "MyTestLib"
+
+#%if @corporate_tag
+        component_name = "@{names.styled_name}"
 #%else
-        component_name = "_@{name}"
+        component_name = "_@{names.styled_name}"
 #%end if
-        self.cpp_info.components[component_name].set_property("cmake_target_name", f"{self.name}::@{name}")
+
+        self.cpp_info.components[component_name].set_property("cmake_target_name", "@{names.cmake_alias_target_name}")
+
+        self.cpp_info.components[component_name].names["cmake_find_package"] = "@{names.conan_package_name}"
+        self.cpp_info.components[component_name].names["cmake_find_package_multi"] = "@{names.conan_package_name}"
+        self.cpp_info.components[component_name].set_property("cmake_target_name", "@{names.cmake_alias_target_name}")
+        self.cpp_info.components[component_name].set_property("pkg_config_name", "@{names.cmake_alias_target_name}")
+
+
         # TODO: consider adding alloaces
         # self.cpp_info.components[component_name].set_property("cmake_target_aliases", [f"{self.name}::{self.name}"])
-        self.cpp_info.components[component_name].set_property("pkg_config_name", self.name)
 #%if not @header_only
-        self.cpp_info.components[component_name].libs = [self.name]
+        self.cpp_info.components[component_name].libs = ["@{names.cmake_project_name}"]
 #%end if
+
         self.cpp_info.components[component_name].requires = [
             # TODO: add dependencies here.
             "fmt::fmt"

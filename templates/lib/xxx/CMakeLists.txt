@@ -1,23 +1,19 @@
-cmake_minimum_required(VERSION 3.14)
-
-if (NOT @{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME)
-    set(@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME @{name})
-endif ()
+cmake_minimum_required(VERSION 3.21)
 
 # Define where cmake-scripts dir is located.
 # in case of using this lib as a submodule it might be located somewhere else
 # and not next to a root `CMakeLists.txt` file of the project.
-if (NOT @{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR)
-    # If not explicitly set use a default one:
-    set(@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/cmake-scripts")
+if (NOT @{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR)
+    # If not explicitly set use a default location (in the root dir):
+    set(@{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/cmake-scripts")
 endif ()
 
 # ====================================================================
 # Version
 # ====================================================================
-include(${@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR}/extract_version.cmake)
+include(${@{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR}/extract_version.cmake)
 extract_version(
-    "include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/version.hpp"
+    "include/@{names.src_path_prefix}/version.hpp"
     # Define extracted version as following:
     PRJ_VERSION_MAJOR
     PRJ_VERSION_MINOR
@@ -31,19 +27,14 @@ set(PRJ_VERSION ${PRJ_VERSION_MAJOR}.${PRJ_VERSION_MINOR}.${PRJ_VERSION_PATCH})
 # a COMPATIBILITY type in install section (SameMinorVersion => SameMajorVersion).
 set(PRJ_SOVERSION ${PRJ_VERSION_MAJOR}.${PRJ_VERSION_MINOR})
 
-message(STATUS "${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} VERSION  : " ${PRJ_VERSION})
-message(STATUS "${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} SOVERSION: " ${PRJ_SOVERSION})
+message(STATUS "@{names.styled_name} VERSION  : " ${PRJ_VERSION})
+message(STATUS "@{names.styled_name} SOVERSION: " ${PRJ_SOVERSION})
 
 # ====================================================================
 # Declare project
 # ====================================================================
 
-#%if @project_cmake_var_suffix == @name
-set(TARGET_PROJECT ${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})
-#%else
-set(TARGET_PROJECT @{project_cmake_var_suffix}_${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME})
-#%end if
-
+set(TARGET_PROJECT @{names.cmake_project_name})
 project(${TARGET_PROJECT} LANGUAGES CXX VERSION ${PRJ_VERSION})
 
 # ====================================================================
@@ -51,18 +42,18 @@ project(${TARGET_PROJECT} LANGUAGES CXX VERSION ${PRJ_VERSION})
 # ====================================================================
 
 list(APPEND TARGET_PUBLIC_HEADERS
-    include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/pub.hpp
-    include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/version.hpp
+    include/@{names.src_path_prefix}/pub.hpp
+    include/@{names.src_path_prefix}/version.hpp
 )
 
 #%if not @header_only
 list(APPEND  target_private_headers
-    include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/impl/helpers.hpp
+    include/@{names.src_path_prefix}/impl/helpers.hpp
 )
 
 list(APPEND target_src
-    src/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/pub.cpp
-    src/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME}/impl/helpers.cpp
+    src/@{names.src_path_prefix}/pub.cpp
+    src/@{names.src_path_prefix}/impl/helpers.cpp
 )
 
 #%end if
@@ -77,10 +68,7 @@ add_library(${TARGET_PROJECT} STATIC ${TARGET_PUBLIC_HEADERS}
                                      ${target_src}
 )
 #%end if
-add_library(${TARGET_PROJECT}::${TARGET_PROJECT} ALIAS ${TARGET_PROJECT})
-#%if @project_cmake_var_suffix != @name
-add_library(${TARGET_PROJECT}::${@{PROJECT_CMAKE_VAR_SUFFIX}_LIBRARY_NAME} ALIAS ${TARGET_PROJECT})
-#%end if
+add_library(@{names.cmake_alias_target_name} ALIAS ${TARGET_PROJECT})
 
 set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 message(STATUS "${TARGET_PROJECT} include_dir: ${PROJECT_INCLUDE_DIR}")
@@ -112,7 +100,7 @@ target_compile_definitions(${TARGET_PROJECT}
 #%else
                            PUBLIC
 #%end if
-                           @{library_macros}
+                           @{names.cpp_library_macros}
 )
 
 # Targets for install
@@ -122,8 +110,8 @@ list(APPEND TARGETS_LIST ${TARGET_PROJECT})
 # ====================================================================
 # Install
 # ====================================================================
-if (@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL)
-    include(${@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR}/lib_install.cmake)
+if (@{names.cmake_var_suffix_upper}_INSTALL)
+    include(${@{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR}/lib_install.cmake)
 
     lib_install(
         TARGET_PROJECT ${TARGET_PROJECT}

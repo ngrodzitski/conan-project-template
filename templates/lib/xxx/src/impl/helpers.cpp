@@ -1,43 +1,50 @@
-#include <${src_path_prefix}${name}/impl/helpers.hpp>
+#include <${names.src_path_prefix}/impl/helpers.hpp>
 
 #include <cctype>
 #include <cstdint>
 #include <numeric>
 
-namespace ${cpp_namespace_prefix}${name}::impl
+namespace ${names.cpp_namespace}::impl
 {
 
 namespace /* anonymous */
 {
 
-constexpr char hex_digits[] = "0123456789ABCDEF";
+constexpr char ${names.cpp_hex_digits_var}[] = "0123456789ABCDEF";
 
 }  // anonymous namespace
 
 //
-// make_canonical_name()
+// ${names.cpp_make_canonical_name_func}()
 //
 
-std::string make_canonical_name(std::string_view name)
+std::string ${names.cpp_make_canonical_name_func}( std::string_view name )
 {
-    std::string result_name;
-    result_name.reserve(name.size() + std::accumulate(begin(name), end(name), 0, [](auto memo, auto ch) {
-                            return memo + (std::isprint(ch) ? 1 : 4);
-                        }));
+    std::string result;
+    result.reserve( name.size() + std::accumulate(begin(name),
+                    end(name),
+                    0,
+                    [](auto memo, auto ch) {
+                        return memo + (std::isprint(ch) ? 1 : 4);
+                    } ) );
 
-    for (const auto ch : name) {
-        if (std::isprint(ch)) {
-            result_name += ch;
-        } else {
+    for( const auto ch : name )
+    {
+        if( std::isprint( ch ) )
+        {
+            result += ch;
+        }
+        else
+        {
             const auto code = static_cast<std::uint8_t>(ch);
-            result_name += '\\';
-            result_name += 'x';
-            result_name += hex_digits[code >> 4];
-            result_name += hex_digits[code & 0x0F];
+            result += '\\';
+            result += 'x';
+            result += ${names.cpp_hex_digits_var}[code >> 4];
+            result += ${names.cpp_hex_digits_var}[code & 0x0F];
         }
     }
 
-    return result_name;
+    return result;
 }
 
-}  // namespace ${cpp_namespace_prefix}${name}::impl
+}  // namespace ${names.cpp_namespace}::impl

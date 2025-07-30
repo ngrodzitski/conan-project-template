@@ -3,17 +3,17 @@ cmake_minimum_required(VERSION 3.21)
 # Define where cmake-scripts dir is located.
 # in case of using this lib as a submodule it might be located somewhere else
 # and not next to a root `CMakeLists.txt` file of the project.
-if (NOT @{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR)
+if (NOT @{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR)
     # If not explicitly set use a default one:
-    set(@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/cmake-scripts")
+    set(@{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/cmake-scripts")
 endif ()
 
 # ====================================================================
 # Version
 # ====================================================================
-include(${@{PROJECT_CMAKE_VAR_SUFFIX}_CMAKE_SCRIPTS_DIR}/extract_version.cmake)
+include(${@{names.cmake_var_suffix_upper}_CMAKE_SCRIPTS_DIR}/extract_version.cmake)
 extract_version(
-    "include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/version.hpp"
+    "include/@{names.src_path_prefix}/version.hpp"
     # Define extracted version as following:
     PRJ_VERSION_MAJOR
     PRJ_VERSION_MINOR
@@ -21,16 +21,12 @@ extract_version(
 )
 
 set(PRJ_VERSION ${PRJ_VERSION_MAJOR}.${PRJ_VERSION_MINOR}.${PRJ_VERSION_PATCH})
-message(STATUS "${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME} VERSION  : " ${PRJ_VERSION})
+message(STATUS "@{names.styled_name} VERSION  : " ${PRJ_VERSION})
 
 # ====================================================================
 # Declare project
 # ====================================================================
-#%if @project_cmake_var_suffix == @name
-set(TARGET_PROJECT ${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME})
-#%else
-set(TARGET_PROJECT @{project_cmake_var_suffix}_${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME})
-#%end if
+set(TARGET_PROJECT @{names.cmake_project_name})
 
 #%if @qml
 qt_standard_project_setup(REQUIRES 6.7)
@@ -43,13 +39,13 @@ project(${TARGET_PROJECT} LANGUAGES CXX VERSION ${PRJ_VERSION})
 # Set sources
 # ====================================================================
 list(APPEND  target_headers
-    include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/version.hpp
-    include/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/main.hpp
+    include/@{names.src_path_prefix}/version.hpp
+    include/@{names.src_path_prefix}/main.hpp
     # TODO: your header files.
 )
 
 list(APPEND target_src
-    src/@{src_path_prefix}${@{PROJECT_CMAKE_VAR_SUFFIX}_APPLICATION_NAME}/main.cpp
+    src/@{names.src_path_prefix}/main.cpp
     # TODO: your src files.
 )
 
@@ -65,7 +61,7 @@ qt_add_library(${TARGET_PROJECT}_lib STATIC ${target_headers} ${target_src})
 #%else
 add_library(${TARGET_PROJECT}_lib STATIC ${target_headers} ${target_src})
 #%end if
-add_library(${TARGET_PROJECT}::${TARGET_PROJECT}_lib ALIAS ${TARGET_PROJECT}_lib)
+add_library(@{names.cmake_alias_target_name}_lib ALIAS ${TARGET_PROJECT}_lib)
 
 set_target_properties(
     ${TARGET_PROJECT}_lib PROPERTIES
@@ -130,7 +126,7 @@ add_executable(${TARGET_PROJECT} src/main.cpp)
 target_link_libraries(
     ${TARGET_PROJECT}
     PRIVATE
-    ${TARGET_PROJECT}::${TARGET_PROJECT}_lib
+    @{names.cmake_alias_target_name}_lib
 )
 
 # Targets for install
@@ -140,7 +136,7 @@ list(APPEND TARGETS_LIST ${TARGET_PROJECT})
 # ====================================================================
 # Install
 # ====================================================================
-if (@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL)
+if (@{names.cmake_var_suffix_upper}_INSTALL)
     include(GNUInstallDirs)
     include(CMakePackageConfigHelpers)
 

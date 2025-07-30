@@ -6,16 +6,13 @@ from conan.tools.files import rmdir
 from conan.tools.scm import Version
 import os, sys, re
 
-#%if "corporate_tag_camel" in self.keys()
-class @{corporate_tag_camel}@{camel_name}Conan(ConanFile):
-#%else
-class @{camel_name}Conan(ConanFile):
-#%end if
+
+class @{names.conan_file_name}Conan(ConanFile):
 
     def set_version(self):
         version_file_path = os.path.join(
             self.recipe_folder,
-            "@{styled_name}/include/@{src_path_prefix}@{styled_name}/version.hpp"
+            "@{names.styled_name}/include/@{names.src_path_prefix}/version.hpp"
         )
         with open(version_file_path, 'r') as file:
             content = file.read()
@@ -31,18 +28,14 @@ class @{camel_name}Conan(ConanFile):
             else:
                 raise ValueError(f"cannot detect version from {version_file_path}")
 
-#%if "corporate_tag_normalized_word" in self.keys()
-    name = "@{corporate_tag_normalized_word.lower()}_@{styled_name}"
-#%else
-    name = "@{styled_name}"
-#%end if
+    name = "@{names.conan_package_name}"
 
     license = "TODO"
     author = "TODO"
     url = "TODO"
     homepage = "TODO"
-    description = "@{styled_name} application"
-    topics = ("@{styled_name}", "todo")
+    description = "@{names.styled_name} application"
+    topics = ("@{names.styled_name}", "todo")
 
     settings = "os", "compiler", "build_type", "arch"
 
@@ -64,10 +57,10 @@ class @{camel_name}Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_INSTALL"] = True
-        tc.variables["@{PROJECT_CMAKE_VAR_SUFFIX}_CONAN_BUILD"] = True
+        tc.variables["@{names.cmake_var_suffix_upper}_INSTALL"] = True
+        tc.variables["@{names.cmake_var_suffix_upper}_CONAN_BUILD"] = True
         tc.variables[
-            "@{PROJECT_CMAKE_VAR_SUFFIX}_BUILD_TESTS"
+            "@{names.cmake_var_suffix_upper}_BUILD_TESTS"
         ] = True
 
         tc.generate()

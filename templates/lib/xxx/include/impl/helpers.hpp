@@ -3,17 +3,18 @@
 #include <string>
 #include <string_view>
 
-namespace ${cpp_namespace_prefix}${name}::impl {
+namespace ${names.cpp_namespace}::impl
+{
 
 //
-// make_canonical_name()
+// ${names.cpp_make_canonical_name_func}()
 //
 
 /**
- * @brief Make canonical name
+ * @brief Make canonical name.
  *
  * For demo let's consider conanical as one with no unprinted characters.
  */
-std::string make_canonical_name( std::string_view name );
+std::string ${names.cpp_make_canonical_name_func}( std::string_view name );
 
-}  // namespace ${cpp_namespace_prefix}${name}::impl
+}  // namespace ${names.cpp_namespace}::impl

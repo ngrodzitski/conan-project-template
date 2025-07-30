@@ -114,6 +114,117 @@ class GeneratorRunner:
             # Write the content to the file:
             file.write(content)
 
+class NamesFactory:
+    def __init__(self, args):
+        self.args = args
+        if args.corporate_tag:
+            self.corporate_tag_normalized_word = args.corporate_tag.replace("::", "_")
+            self.corporate_tag_normalized_path = args.corporate_tag.replace("::", "/")
+
+    @property
+    def snake(self):
+        return self.args.name
+
+    @property
+    def camel(self):
+        return self.args.camel_name
+
+    @property
+    def styled_name(self):
+        if args.style == "Camel":
+            return self.camel
+        else:
+            return self.snake
+
+    @property
+    def conan_file_name(self):
+        tag = ""
+        if self.args.corporate_tag:
+            tag = self.args.corporate_tag.replace("::"," ").title().replace(" ", "")
+
+        return f"{tag}{self.camel}"
+
+    @property
+    def conan_package_name(self):
+        tag = ""
+        if self.args.corporate_tag:
+            tag = self.corporate_tag_normalized_word.lower() + "_"
+
+        return f"{tag}{self.snake}"
+
+    @property
+    def cmake_var_suffix_lower(self):
+        if self.args.corporate_tag:
+            return self.corporate_tag_normalized_word.lower()
+        else:
+            return self.snake.lower()
+
+    @property
+    def cmake_var_suffix_upper(self):
+        return self.cmake_var_suffix_lower.upper()
+
+    @property
+    def cmake_project_name(self):
+        if self.args.corporate_tag:
+            return f"{self.corporate_tag_normalized_word}_{self.styled_name}"
+        else:
+            return self.styled_name
+
+    @property
+    def cmake_alias_target_name(self):
+        return f"{self.cmake_project_name}::{self.styled_name}"
+
+    @property
+    def src_path_prefix(self):
+        if self.args.corporate_tag:
+            return f"{self.corporate_tag_normalized_path}/{self.styled_name}"
+        else:
+            return self.styled_name
+
+    @property
+    def cpp_library_macros(self):
+        if self.args.corporate_tag:
+            return f"{self.corporate_tag_normalized_word.upper()}_LIB_{self.snake.upper()}"
+        else:
+            return f"LIB_{self.snake.upper()}"
+
+    @property
+    def cpp_namespace(self):
+        if self.args.corporate_tag:
+            return f"{args.corporate_tag}::{self.styled_name}"
+        else:
+            return self.styled_name
+
+    @property
+    def cpp_make_canonical_name_func(self):
+        if self.args.style == "Camel":
+            return "makeCanonicalName"
+        else:
+            return "make_canonical_name"
+    @property
+    def cpp_make_canonical_sample_func(self):
+        if self.args.style == "Camel":
+            return "makeCanonicalSample"
+        else:
+            return "make_canonical_sample"
+    @property
+    def cpp_hex_digits_var(self):
+        if self.args.style == "Camel":
+            return "hexDigits"
+        else:
+            return "hex_digits"
+    @property
+    def cpp_sample_class_name(self):
+        if self.args.style == "Camel":
+            return "SampleClass"
+        else:
+            return "sample_class_t"
+
+    @property
+    def sample_test_file_name(self):
+        return "SampleTest.cpp" if self.args.style == "Camel" else "sample_test.cpp"
+
+
 def generate_stub_project(args):
     print_params(args)
 
@@ -141,28 +252,9 @@ def generate_stub_project(args):
         "style": args.style,
         "qml": args.qml,
         "header_only": args.header_only,
+        "corporate_tag": args.corporate_tag,
+        "names": NamesFactory(args)
     }
-
-    if args.corporate_tag:
-        corporate_tag_normalized_word = args.corporate_tag.replace("::", "_")
-        corporate_tag_normalized_path = args.corporate_tag.replace("::", "/")
-        gen_params["PROJECT_CMAKE_VAR_SUFFIX"] = corporate_tag_normalized_word.upper()
-        gen_params["project_cmake_var_suffix"] = corporate_tag_normalized_word.lower()
-        gen_params["corporate_tag_cammel"] = args.corporate_tag.replace("::"," ").title().replace(" ", "")
-        gen_params["corporate_tag_normalized_word"] = corporate_tag_normalized_word
-        gen_params["corporate_tag_normalized_path"] = corporate_tag_normalized_path
-        if args.project_type == "lib":
-            gen_params["library_macros"] = f"{corporate_tag_normalized_word.upper()}_LIB_{args.name.upper()}"
-
-        gen_params["src_path_prefix"] = f"{corporate_tag_normalized_path}/"
-        gen_params["cpp_namespace_prefix"] = f"{args.corporate_tag}::"
-    else:
-        gen_params["PROJECT_CMAKE_VAR_SUFFIX"] = args.name.upper()
-        gen_params["project_cmake_var_suffix"] = args.name.lower()
-        if args.project_type == "lib":
-            gen_params["library_macros"] = f"LIB_{args.name.upper()}"
-        gen_params["src_path_prefix"] = ""
-        gen_params["cpp_namespace_prefix"] = ""
 
     copy_static_files(
         dest_dir = dest_dir,
@@ -171,6 +263,12 @@ def generate_stub_project(args):
     )
 
     gen = GeneratorRunner( dest_dir, template_src_dir, gen_params)
+
+    print('')
+    print('')
+    print(gen_params)
+    print('')
+    print('')
 
     if (args.qml):
         copy_static_files(
@@ -193,33 +291,34 @@ def generate_stub_project(args):
     gen.generate_file( "conanfile.py", "conanfile.py", generate_md_py_cmake_piece)
     gen.generate_file( "xxx/CMakeLists.txt", f"{gen_params['styled_name']}/CMakeLists.txt", generate_md_py_cmake_piece)
 
+    src_prefix = gen_params['names'].src_path_prefix
     gen.generate_file(
         "xxx/include/version.hpp",
-        f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/version.hpp",
+        f"{gen_params['styled_name']}/include/{src_prefix}/version.hpp",
         generate_cpp_piece
     )
 
     if args.project_type == "lib":
         gen.generate_file(
             "xxx/include/pub.hpp",
-            f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/pub.hpp",
+            f"{gen_params['styled_name']}/include/{src_prefix}/pub.hpp",
             generate_cpp_piece
         )
 
         if not args.header_only:
             gen.generate_file(
                 "xxx/src/pub.cpp",
-                f"{gen_params['styled_name']}/src/{gen_params['src_path_prefix']}{gen_params['styled_name']}/pub.cpp",
+                f"{gen_params['styled_name']}/src/{src_prefix}/pub.cpp",
                 generate_cpp_piece
             )
             gen.generate_file(
                 "xxx/include/impl/helpers.hpp",
-                f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/impl/helpers.hpp",
+                f"{gen_params['styled_name']}/include/{src_prefix}/impl/helpers.hpp",
                 generate_cpp_piece
             )
             gen.generate_file(
                 "xxx/src/impl/helpers.cpp",
-                f"{gen_params['styled_name']}/src/{gen_params['src_path_prefix']}{gen_params['styled_name']}/impl/helpers.cpp",
+                f"{gen_params['styled_name']}/src/{src_prefix}/impl/helpers.cpp",
                 generate_cpp_piece
             )
 
@@ -264,12 +363,12 @@ def generate_stub_project(args):
     if args.project_type == "app":
         gen.generate_file(
             "xxx/include/main.hpp",
-            f"{gen_params['styled_name']}/include/{gen_params['src_path_prefix']}{gen_params['styled_name']}/main.hpp",
+            f"{gen_params['styled_name']}/include/{src_prefix}/main.hpp",
             generate_cpp_piece
         )
         gen.generate_file(
             "xxx/src/main_lib.cpp",
-            f"{gen_params['styled_name']}/src/{gen_params['src_path_prefix']}{gen_params['styled_name']}/main.cpp",
+            f"{gen_params['styled_name']}/src/{src_prefix}/main.cpp",
             generate_cpp_piece
         )
         gen.generate_file(
@@ -284,10 +383,9 @@ def generate_stub_project(args):
             generate_md_py_cmake_piece
         )
 
-        sample_test_name = "SampleTest" if args.style == "Camel" else "sample_test"
         gen.generate_file(
             "xxx/test/sample_test.cpp",
-            f"{gen_params['styled_name']}/test/{sample_test_name}.cpp",
+            f"{gen_params['styled_name']}/test/{gen_params['names'].sample_test_file_name}",
             generate_cpp_piece
         )
 

@@ -1,4 +1,4 @@
-#include <${src_path_prefix}${styled_name}/main.hpp>
+#include <${names.src_path_prefix}/main.hpp>
 
 #include <gtest/gtest.h>
 

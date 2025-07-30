@@ -11,7 +11,7 @@ Window {
 
     FontLoader {
         id: blocks3x3Font
-        source: "qrc:/@{camel_name}/fonts/blocks-3x3-monospaced.ttf"
+        source: "qrc:/@{names.camel}/fonts/blocks-3x3-monospaced.ttf"
         onStatusChanged: {
             if (status == FontLoader.Ready) {
                 console.log("blocks-3x3-monospaced loaded successfully");
@@ -26,7 +26,7 @@ Window {
 
         id: helloDialog
         modal: true
-        title: qsTr("@{camel_name} app")
+        title: qsTr("@{names.camel} app")
         standardButtons: Dialog.Ok
 
         contentItem: Label {
@@ -50,8 +50,10 @@ Window {
 
 
     Text {
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.topMargin: 4
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
+
         // Using CommonUtils.js
         text: "Big number: " + myPrettyNumber( 281308 * 1171 * 7 )
 
@@ -65,6 +67,6 @@ Window {
         anchors.bottom: parent.bottom
 
         // Using Images.
-        source: "qrc:/@{camel_name}/images/sample_image.png"
+        source: "qrc:/@{names.camel}/images/sample_image.png"
     }
 }

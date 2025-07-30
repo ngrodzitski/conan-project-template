@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ${cpp_namespace_prefix}${styled_name}
+namespace ${names.cpp_namespace}
 {
 
 //
@@ -12,4 +12,4 @@ namespace ${cpp_namespace_prefix}${styled_name}
  */
 int main(int argc, char** argv);
 
-}  // namespace ${cpp_namespace_prefix}${styled_name}
+}  // namespace ${names.cpp_namespace}
