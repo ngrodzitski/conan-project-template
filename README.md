@@ -7,7 +7,8 @@ that uses Conan that includes all boring stuff (cmake-scripts, initial sample so
 and is ready for further development
 
 ```txt
-usage: project_generator.py [-h] -t project-type -d dir-path -n name -N camel-name [--header-only] [--corporate-tag corporate-tag]
+usage: project_generator.py [-h] -t project-type [--qml] [--style style] -d dir-path -n name -N camel-name
+                            [--header-only] [--corporate-tag corporate-tag]
 
 Generate conan-based project stub (a starter)
 
@@ -15,6 +16,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -t project-type, --project-type project-type
                         Project type (allowed values: 'app', 'lib')
+  --qml                 Create a Qt QML application
+  --style style         Use snake_case (default) or CamelCase, (allowed values: 'snake', 'Camel')
   -d dir-path, --dir-path dir-path
                         Directory where to generate a stub project
   -n name, --name name  Project name
@@ -55,6 +58,40 @@ python ./project_generator.py \
      --camel-name CoolLib \
      --dir-path /tmp/cool_lib \
      --corporate-tag kola
+
+# With CamelCase:
+python ./project_generator.py \
+     --project-type lib \
+     --style Camel \
+     --name cool_lib \
+     --camel-name CoolLib \
+     --dir-path /tmp/cool_lib
+```
+
+## Create application
+
+Example commands to create an application project.
+
+```bash
+# Create library project:
+python ./project_generator.py -t app -n cool_app -N CoolApp -d /tmp/cool_app
+
+# Or:
+python ./project_generator.py \
+     --project-type app \
+     --name cool_app \
+     --camel-name CoolApp \
+     --dir-path /tmp/cool_app
+
+# Qml App:
+python ./project_generator.py \
+     -t app \
+     --style Camel \
+     --corporate-tag kola \
+     --dir-path /tmp/SampleQmlApp \
+     -n sample_qml_app \
+     -N SampleQmlApp \
+     --qml
 ```
 
 # Build instructions
