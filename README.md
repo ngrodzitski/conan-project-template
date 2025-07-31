@@ -109,7 +109,13 @@ cmake --build build_dir -j $(nproc) --verbose
 conan install . -pr:a ubu-gcc11 --build missing -s:a build_type=Debug -of _build
 (source ./_build/conanbuild.sh && cmake -B_build . -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug)
 cmake --build _build -j 6 --verbose
+
+
+# When creating a QML app use use `-DCMAKE_PREFIX_PATH` cmake option:
+(source ./_build/conanbuild.sh && cmake -B_build . -DCMAKE_PREFIX_PATH=~/qt682 -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug)
+#                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
+
 On Windows:
 
 ```cmd
